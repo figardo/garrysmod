@@ -124,6 +124,8 @@ SWEP.PrimaryAnim = ACT_VM_PRIMARYATTACK
 SWEP.ReloadAnim = ACT_VM_RELOAD
 
 SWEP.IronSightsSpeed = 0.25
+SWEP.IronSightsSwayScale = 0.3
+SWEP.IronSightsBobScale = 0.1
 
 SWEP.fingerprints = {}
 
@@ -674,14 +676,6 @@ function SWEP:GetViewModelPosition( pos, ang )
    local time = (systime - (self.fCurrentSysTime or systime)) * game.GetTimeScale() * host_timescale:GetFloat()
    self.fCurrentSysTime = systime
 
-   if bIron then
-      self.SwayScale = 0.3
-      self.BobScale = 0.1
-   else
-      self.SwayScale = 1.0
-      self.BobScale = 1.0
-   end
-
    local mul = self.fIronMult or 0
    if (not bIron) and mul == 0 then
       return pos, ang
@@ -689,6 +683,8 @@ function SWEP:GetViewModelPosition( pos, ang )
 
    if (bIron and mul < 1) or (not bIron and mul > 0) then
       mul = math.Approach(mul, bIron and 1 or 0, time / self.IronSightsSpeed)
+      self.SwayScale = Lerp(mul, 1.0, self.IronSightsSwayScale)
+      self.BobScale = Lerp(mul, 1.0, self.IronSightsBobScale)
    end
 
    local offset = self.IronSightsPos + (ttt_lowered:GetBool() and LOWER_POS or vector_origin)
